@@ -1,4 +1,4 @@
-#include "vc/core/types/Volume.hpp"
+#include "vc/core/types/VolumeGrids.hpp"
 
 #include <iomanip>
 #include <sstream>
@@ -12,8 +12,8 @@ namespace tio = volcart::tiffio;
 
 using namespace volcart;
 
-// Load a Volume from disk
-Volume::Volume(fs::path path) : DiskBasedObjectBaseClass(std::move(path))
+// Load a VolumeGrids from disk
+VolumeGrids::VolumeGrids(fs::path path) : DiskBasedObjectBaseClass(std::move(path))
 {
     if (metadata_.get<std::string>("type") != "vol") {
         throw std::runtime_error("File not of type: vol");
@@ -29,8 +29,8 @@ Volume::Volume(fs::path path) : DiskBasedObjectBaseClass(std::move(path))
     slice_mutexes_.swap(init_mutexes);
 }
 
-// Setup a Volume from a folder of slices
-Volume::Volume(fs::path path, std::string uuid, std::string name)
+// Setup a VolumeGrids from a folder of slices
+VolumeGrids::VolumeGrids(fs::path path, std::string uuid, std::string name)
     : DiskBasedObjectBaseClass(
           std::move(path), std::move(uuid), std::move(name)),
           slice_mutexes_(slices_)
@@ -44,49 +44,49 @@ Volume::Volume(fs::path path, std::string uuid, std::string name)
     metadata_.set("max", double{});
 }
 
-// Load a Volume from disk, return a pointer
-Volume::Pointer Volume::New(fs::path path)
+// Load a VolumeGrids from disk, return a pointer
+VolumeGrids::Pointer VolumeGrids::New(fs::path path)
 {
-    return std::make_shared<Volume>(path);
+    return std::make_shared<VolumeGrids>(path);
 }
 
-// Set a Volume from a folder of slices, return a pointer
-Volume::Pointer Volume::New(fs::path path, std::string uuid, std::string name)
+// Set a VolumeGrids from a folder of slices, return a pointer
+VolumeGrids::Pointer VolumeGrids::New(fs::path path, std::string uuid, std::string name)
 {
-    return std::make_shared<Volume>(path, uuid, name);
+    return std::make_shared<VolumeGrids>(path, uuid, name);
 }
 
-int Volume::sliceWidth() const { return width_; }
-int Volume::sliceHeight() const { return height_; }
-int Volume::numSlices() const { return slices_; }
-double Volume::voxelSize() const { return metadata_.get<double>("voxelsize"); }
-double Volume::min() const { return metadata_.get<double>("min"); }
-double Volume::max() const { return metadata_.get<double>("max"); }
+int VolumeGrids::sliceWidth() const { return width_; }
+int VolumeGrids::sliceHeight() const { return height_; }
+int VolumeGrids::numSlices() const { return slices_; }
+double VolumeGrids::voxelSize() const { return metadata_.get<double>("voxelsize"); }
+double VolumeGrids::min() const { return metadata_.get<double>("min"); }
+double VolumeGrids::max() const { return metadata_.get<double>("max"); }
 
-void Volume::setSliceWidth(int w)
+void VolumeGrids::setSliceWidth(int w)
 {
     width_ = w;
     metadata_.set("width", w);
 }
 
-void Volume::setSliceHeight(int h)
+void VolumeGrids::setSliceHeight(int h)
 {
     height_ = h;
     metadata_.set("height", h);
 }
 
-void Volume::setNumberOfSlices(size_t numSlices)
+void VolumeGrids::setNumberOfSlices(size_t numSlices)
 {
     slices_ = numSlices;
     numSliceCharacters_ = std::to_string(numSlices).size();
     metadata_.set("slices", numSlices);
 }
 
-void Volume::setVoxelSize(double s) { metadata_.set("voxelsize", s); }
-void Volume::setMin(double m) { metadata_.set("min", m); }
-void Volume::setMax(double m) { metadata_.set("max", m); }
+void VolumeGrids::setVoxelSize(double s) { metadata_.set("voxelsize", s); }
+void VolumeGrids::setMin(double m) { metadata_.set("min", m); }
+void VolumeGrids::setMax(double m) { metadata_.set("max", m); }
 
-Volume::Bounds Volume::bounds() const
+VolumeGrids::Bounds VolumeGrids::bounds() const
 {
     return {
         {0, 0, 0},
@@ -94,18 +94,18 @@ Volume::Bounds Volume::bounds() const
          static_cast<double>(slices_)}};
 }
 
-bool Volume::isInBounds(double x, double y, double z) const
+bool VolumeGrids::isInBounds(double x, double y, double z) const
 {
     return x >= 0 && x < width_ && y >= 0 && y < height_ && z >= 0 &&
            z < slices_;
 }
 
-bool Volume::isInBounds(const cv::Vec3d& v) const
+bool VolumeGrids::isInBounds(const cv::Vec3d& v) const
 {
     return isInBounds(v(0), v(1), v(2));
 }
 
-fs::path Volume::getSlicePath(int index) const
+fs::path VolumeGrids::getSlicePath(int index) const
 {
     std::stringstream ss;
     ss << std::setw(numSliceCharacters_) << std::setfill('0') << index
@@ -113,7 +113,7 @@ fs::path Volume::getSlicePath(int index) const
     return path_ / ss.str();
 }
 
-cv::Mat Volume::getSliceData(int index) const
+cv::Mat VolumeGrids::getSliceData(int index) const
 {
     if (cacheSlices_) {
         return cache_slice_(index);
@@ -122,26 +122,26 @@ cv::Mat Volume::getSliceData(int index) const
     }
 }
 
-cv::Mat Volume::getSliceDataCopy(int index) const
+cv::Mat VolumeGrids::getSliceDataCopy(int index) const
 {
     return getSliceData(index).clone();
 }
 
-cv::Mat Volume::getSliceDataRect(int index, cv::Rect rect) const
+cv::Mat VolumeGrids::getSliceDataRect(int index, cv::Rect rect) const
 {
     auto whole_img = getSliceData(index);
     std::shared_lock<std::shared_mutex> lock(cache_mutex_);
     return whole_img(rect);
 }
 
-cv::Mat Volume::getSliceDataRectCopy(int index, cv::Rect rect) const
+cv::Mat VolumeGrids::getSliceDataRectCopy(int index, cv::Rect rect) const
 {
     auto whole_img = getSliceData(index);
     std::shared_lock<std::shared_mutex> lock(cache_mutex_);
     return whole_img(rect).clone();
 }
 
-void Volume::setSliceData(int index, const cv::Mat& slice, bool compress)
+void VolumeGrids::setSliceData(int index, const cv::Mat& slice, bool compress)
 {
     auto slicePath = getSlicePath(index);
     tio::WriteTIFF(
@@ -149,7 +149,7 @@ void Volume::setSliceData(int index, const cv::Mat& slice, bool compress)
         (compress) ? tiffio::Compression::LZW : tiffio::Compression::NONE);
 }
 
-uint16_t Volume::intensityAt(int x, int y, int z) const
+uint16_t VolumeGrids::intensityAt(int x, int y, int z) const
 {
     // clang-format off
     if (x < 0 || x >= sliceWidth() ||
@@ -163,7 +163,7 @@ uint16_t Volume::intensityAt(int x, int y, int z) const
 
 // Trilinear Interpolation
 // From: https://en.wikipedia.org/wiki/Trilinear_interpolation
-uint16_t Volume::interpolateAt(double x, double y, double z) const
+uint16_t VolumeGrids::interpolateAt(double x, double y, double z) const
 {
     // insert safety net
     if (!isInBounds(x, y, z)) {
@@ -197,7 +197,7 @@ uint16_t Volume::interpolateAt(double x, double y, double z) const
     return static_cast<uint16_t>(cvRound(c));
 }
 
-Reslice Volume::reslice(
+Reslice VolumeGrids::reslice(
     const cv::Vec3d& center,
     const cv::Vec3d& xvec,
     const cv::Vec3d& yvec,
@@ -219,7 +219,7 @@ Reslice Volume::reslice(
     return Reslice(m, origin, xnorm, ynorm);
 }
 
-// cv::Mat Volume::load_slice_(int index) const
+// cv::Mat VolumeGrids::load_slice_(int index) const
 // {
 //     {
 //         std::unique_lock<std::shared_mutex> lock(print_mutex_);
@@ -229,53 +229,53 @@ Reslice Volume::reslice(
 //     return cv::imread(slicePath.string(), -1);
 // }
 
-cv::Mat Volume::load_slice_(int index) const
+cv::Mat VolumeGrids::load_slice_(int index) const
 {
     auto slicePath = getSlicePath(index);
-    // auto slicePathSSD = slicePath;
-    // std::string pathStr = slicePath.string();
-    // std::string pathStr2 = slicePath.string();
-    // std::string pathStr3 = slicePath.string();
-    // // Replace SSD4TB with HDD8TB if the path does not exist
-    // // string of the disk name to be replaced
-    // char* diskName = "SSD4TB2";
-    // char* diskName2 = "HDD8TB";
-    // // check if diskname in path, if not: set diskname to diskname2
-    // auto pos2 = pathStr2.find(diskName);
-    // if (pos2 == std::string::npos) {
-    //     diskName = diskName2;
-    // }
+    auto slicePathSSD = slicePath;
+    std::string pathStr = slicePath.string();
+    std::string pathStr2 = slicePath.string();
+    std::string pathStr3 = slicePath.string();
+    // Replace SSD4TB with HDD8TB if the path does not exist
+    // string of the disk name to be replaced
+    char* diskName = "SSD4TB2";
+    char* diskName2 = "HDD8TB";
+    // check if diskname in path, if not: set diskname to diskname2
+    auto pos2 = pathStr2.find(diskName);
+    if (pos2 == std::string::npos) {
+        diskName = diskName2;
+    }
 
-    // size_t pos = pathStr.find(diskName);
-    // if (pos != std::string::npos) {
-    //     pathStr.replace(pos, std::strlen(diskName), "SSD4TB");
-    //     slicePathSSD = std::filesystem::path(pathStr);
-    // }
-    // // Check if the slice exists
-    // if (std::filesystem::exists(slicePathSSD)) {
-    //     slicePath = slicePathSSD;
-    // }
-    // else {
-    //     pos = pathStr2.find(diskName);
-    //     if (pos != std::string::npos) {
-    //         pathStr2.replace(pos, std::strlen(diskName), "SSD120GB");
-    //         slicePathSSD = std::filesystem::path(pathStr2);
-    //     }
-    //     if (std::filesystem::exists(slicePathSSD)) {
-    //         slicePath = slicePathSSD;
-    //     }
-    //     else {
-    //         pos = pathStr3.find(diskName);
-    //         if (pos != std::string::npos) {
-    //             pathStr3.replace(pos, std::strlen(diskName), "FastSSD");
-    //             slicePathSSD = std::filesystem::path(pathStr3);
-    //         }
-    //         if (std::filesystem::exists(slicePathSSD)) {
-    //             slicePath = slicePathSSD;
-    //         }
-    //     }
+    size_t pos = pathStr.find(diskName);
+    if (pos != std::string::npos) {
+        pathStr.replace(pos, std::strlen(diskName), "SSD4TB");
+        slicePathSSD = std::filesystem::path(pathStr);
+    }
+    // Check if the slice exists
+    if (std::filesystem::exists(slicePathSSD)) {
+        slicePath = slicePathSSD;
+    }
+    else {
+        pos = pathStr2.find(diskName);
+        if (pos != std::string::npos) {
+            pathStr2.replace(pos, std::strlen(diskName), "SSD120GB");
+            slicePathSSD = std::filesystem::path(pathStr2);
+        }
+        if (std::filesystem::exists(slicePathSSD)) {
+            slicePath = slicePathSSD;
+        }
+        else {
+            pos = pathStr3.find(diskName);
+            if (pos != std::string::npos) {
+                pathStr3.replace(pos, std::strlen(diskName), "FastSSD");
+                slicePathSSD = std::filesystem::path(pathStr3);
+            }
+            if (std::filesystem::exists(slicePathSSD)) {
+                slicePath = slicePathSSD;
+            }
+        }
 
-    // }
+    }
     
 
     {
@@ -286,7 +286,7 @@ cv::Mat Volume::load_slice_(int index) const
     return cv::imread(slicePath.string(), -1);
 }
 
-cv::Mat Volume::cache_slice_(int index) const
+cv::Mat VolumeGrids::cache_slice_(int index) const
 {
     // Check if the slice is in the cache.
     {
@@ -321,7 +321,7 @@ cv::Mat Volume::cache_slice_(int index) const
 }
 
 
-void Volume::cachePurge() const 
+void VolumeGrids::cachePurge() const 
 {
     std::unique_lock<std::shared_mutex> lock(cache_mutex_);
     cache_->purge();

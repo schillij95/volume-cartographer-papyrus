@@ -72,6 +72,55 @@ public:
         cv::Vec3d normal;
     };
 
+    // Define a structure to hold the x, y coordinates and a pointer to the mapping
+    struct MappedPixel {
+        size_t x;
+        size_t y;
+        const cv::Vec6d* mapping;
+
+        MappedPixel(size_t x, size_t y, const cv::Vec6d* mapping)
+            : x(x), y(y), mapping(mapping) {}
+    };
+
+    // Method to get a sorted vector of MappedPixel based on Z-values
+    std::vector<MappedPixel> getSortedMappings() const {
+        std::vector<MappedPixel> sortedMappings;
+        sortedMappings.reserve(height_ * width_);
+
+        // Populate the vector with MappedPixel instances
+        for (size_t y = 0; y < height_; ++y) {
+            for (size_t x = 0; x < width_; ++x) {
+                if (hasMapping(y, x)) {
+                    sortedMappings.emplace_back(x, y, &operator()(y, x));
+                }
+            }
+        }
+
+        // Check if already sorted (Thaumato resultted)
+        if (sortedMappings.size() > 0) {
+            bool sorted = true;
+            for (size_t i = 0; i < sortedMappings.size() - 1; ++i) {
+                if (sortedMappings[i].mapping->val[2] > sortedMappings[i + 1].mapping->val[2]) {
+                    sorted = false;
+                    break;
+                }
+            }
+            if (sorted) {
+                std::cout << "Already sorted" << std::endl;
+                return sortedMappings;
+            }
+        }
+
+
+        // Sort the vector based on Z-values of the mapping
+        std::sort(sortedMappings.begin(), sortedMappings.end(),
+                  [](const MappedPixel& lhs, const MappedPixel& rhs) {
+                      return lhs.mapping->val[2] < rhs.mapping->val[2];
+                  });
+
+        return sortedMappings;
+    }
+
     /** Pointer type */
     using Pointer = std::shared_ptr<PerPixelMap>;
 

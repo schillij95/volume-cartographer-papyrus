@@ -43,6 +43,7 @@ set(type_srcs
     src/Segmentation.cpp
     src/UVMap.cpp
     src/Volume.cpp
+    src/VolumeGrids.cpp
     src/VolumeMask.cpp
     src/VolumePkg.cpp
     src/VolumetricMask.cpp

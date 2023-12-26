@@ -71,6 +71,7 @@ Neighborhood CuboidGenerator::compute(
 
                 // Assign to the subvolume array
                 output(z, y, x) = v->interpolateAt(p);
+                // output(z, y, x) = v->intensityAt(p);
             }
         }
     }

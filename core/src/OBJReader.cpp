@@ -57,7 +57,9 @@ void OBJReader::parse_()
 
     std::ifstream ifs(path_.string());
     if (!ifs.good()) {
-        throw IOException("Failed to open file for reading");
+        // error msg with path
+        auto msg = "Failed to open file for reading: " + path_.string();
+        throw IOException(msg);
     }
 
     std::string line;

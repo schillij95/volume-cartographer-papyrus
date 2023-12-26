@@ -21,6 +21,11 @@ Neighborhood LineGenerator::compute(
         throw std::domain_error("Sampling interval too small");
     }
 
+    // check axes[0] norm is close to one
+    if (!AlmostEqual(cv::norm(axes[0]), 1.0)) {
+        throw std::domain_error("Axis norm must be close to 1.0");
+    }
+
     // Make sure radius is positive
     auto radius = std::abs(radius_[0]);
 

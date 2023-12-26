@@ -64,7 +64,9 @@ void SkyscanMetadataIO::parse_()
     // Load the log
     std::ifstream ifs(path_.string());
     if (!ifs.good()) {
-        throw IOException("Failed to open file for reading");
+        // msg with path for error
+        auto msg = "Failed to open file for reading: " + path_.string();
+        throw IOException(msg);
     }
 
     // Parse each line
