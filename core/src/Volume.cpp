@@ -232,50 +232,50 @@ Reslice Volume::reslice(
 cv::Mat Volume::load_slice_(int index) const
 {
     auto slicePath = getSlicePath(index);
-    auto slicePathSSD = slicePath;
-    std::string pathStr = slicePath.string();
-    std::string pathStr2 = slicePath.string();
-    std::string pathStr3 = slicePath.string();
-    // Replace SSD4TB with HDD8TB if the path does not exist
-    // string of the disk name to be replaced
-    char* diskName = "SSD4TB2";
-    char* diskName2 = "HDD8TB";
-    // check if diskname in path, if not: set diskname to diskname2
-    auto pos2 = pathStr2.find(diskName);
-    if (pos2 == std::string::npos) {
-        diskName = diskName2;
-    }
+    // auto slicePathSSD = slicePath;
+    // std::string pathStr = slicePath.string();
+    // std::string pathStr2 = slicePath.string();
+    // std::string pathStr3 = slicePath.string();
+    // // Replace SSD4TB with HDD8TB if the path does not exist
+    // // string of the disk name to be replaced
+    // char* diskName = "SSD4TB2";
+    // char* diskName2 = "HDD8TB";
+    // // check if diskname in path, if not: set diskname to diskname2
+    // auto pos2 = pathStr2.find(diskName);
+    // if (pos2 == std::string::npos) {
+    //     diskName = diskName2;
+    // }
 
-    size_t pos = pathStr.find(diskName);
-    if (pos != std::string::npos) {
-        pathStr.replace(pos, std::strlen(diskName), "SSD4TB");
-        slicePathSSD = std::filesystem::path(pathStr);
-    }
-    // Check if the slice exists
-    if (std::filesystem::exists(slicePathSSD)) {
-        slicePath = slicePathSSD;
-    }
-    else {
-        pos = pathStr2.find(diskName);
-        if (pos != std::string::npos) {
-            pathStr2.replace(pos, std::strlen(diskName), "SSD120GB");
-            slicePathSSD = std::filesystem::path(pathStr2);
-        }
-        if (std::filesystem::exists(slicePathSSD)) {
-            slicePath = slicePathSSD;
-        }
-        else {
-            pos = pathStr3.find(diskName);
-            if (pos != std::string::npos) {
-                pathStr3.replace(pos, std::strlen(diskName), "FastSSD");
-                slicePathSSD = std::filesystem::path(pathStr3);
-            }
-            if (std::filesystem::exists(slicePathSSD)) {
-                slicePath = slicePathSSD;
-            }
-        }
+    // size_t pos = pathStr.find(diskName);
+    // if (pos != std::string::npos) {
+    //     pathStr.replace(pos, std::strlen(diskName), "SSD4TB");
+    //     slicePathSSD = std::filesystem::path(pathStr);
+    // }
+    // // Check if the slice exists
+    // if (std::filesystem::exists(slicePathSSD)) {
+    //     slicePath = slicePathSSD;
+    // }
+    // else {
+    //     pos = pathStr2.find(diskName);
+    //     if (pos != std::string::npos) {
+    //         pathStr2.replace(pos, std::strlen(diskName), "SSD120GB");
+    //         slicePathSSD = std::filesystem::path(pathStr2);
+    //     }
+    //     if (std::filesystem::exists(slicePathSSD)) {
+    //         slicePath = slicePathSSD;
+    //     }
+    //     else {
+    //         pos = pathStr3.find(diskName);
+    //         if (pos != std::string::npos) {
+    //             pathStr3.replace(pos, std::strlen(diskName), "FastSSD");
+    //             slicePathSSD = std::filesystem::path(pathStr3);
+    //         }
+    //         if (std::filesystem::exists(slicePathSSD)) {
+    //             slicePath = slicePathSSD;
+    //         }
+    //     }
 
-    }
+    // }
     
 
     {
