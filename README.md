@@ -1,3 +1,13 @@
+## Julian Schilliger's fork of the [Volume Cartographer](https://github.com/educelab/volume-cartographer)
+
+This fork has won multiple awards at the [Vesuvius Challenge](https://scrollprize.org/), including the [Vesuvius Challenge Segmentation Tooling Prize](https://scrollprize.substack.com/p/segmentation-tooling-winners-new) and the [Vesuvius Challenge Segmentation Tooling 2 Prize](https://scrollprize.substack.com/p/segmentation-tooling-2-winners).
+
+The Optical Flow Segmentation (OFS) algorithm introduced in this fork is the driving factor behind the successful and to date largest-scale segmentation of the Herculaneum Papyri, which resulted in close to 3,000 cm² of papyri being successfully segmented and virtually unrolled.
+
+Almost all (>99% of the total area) of the [available segmentations](https://scrollprize.org/data_segments) of the Herculaneum Papyri have been created using the OFS algorithm introduced in this fork. Only with these improvements to the Volume Cartographer software was it possible to segment the Herculaneum Papyri at the achieved scale and quality. Giving the Machine Learning community a dataset to detect the ink traces on the papyri and enabling the reading of the unopened Herculaneum Papyri for the first time in 2,000 years. 
+
+---
+
 [![Volume Cartographer](docs/images/banner.svg)](https://github.com/educelab/volume-cartographer)
 
 **Volume Cartographer** is a toolkit and set of cross-platform C++ libraries for
